@@ -124,7 +124,7 @@ public final <R> Stream<R> map(Function<? super P_OUT, ? extends R> mapper) {
 
 上述代码看似复杂，其实逻辑很简单，就是将回调函数*mapper*包装到一个Sink当中。由于Stream.map()是一个无状态的中间操作，所以map()方法返回了一个StatelessOp内部类对象（一个新的Stream），调用这个新Stream的opWripSink()方法将得到一个包装了当前回调函数的Sink。
 调用流程如下
-<img src="./Figures/Stream_pipeline_Sink_2.png"  width="700px" alt="Stream_pipeline_Sink_2"/>
+<img src="./Figures/Stream_pipeline_Sink_2.jpg"  width="700px" alt="Stream_pipeline_Sink_2"/>
 
 再来看一个复杂一点的例子。Stream.sorted()方法将对Stream中的元素进行排序，显然这是一个有状态的中间操作，因为读取所有元素之前是没法得到最终顺序的。抛开模板代码直接进入问题本质，sorted()方法是如何将操作封装成Sink的呢？sorted()一种可能封装的Sink代码如下：
 
@@ -170,7 +170,7 @@ class RefSortingSink<T> extends AbstractRefSortingSink<T> {
 3. 最后end()方法告诉Sink所有元素遍历完毕，启动排序步骤，排序完成后将结果传递给下游的Sink；
 4. 如果下游的Sink是短路操作，将结果传递给下游时不断询问下游cancellationRequested()是否可以结束处理。
 sorted的end方法中,其依赖上一次操作的结果集,按照调用链来说结果集必须在accept()调用完才会产生.那也就说明sorted操作需要在end中,然后再重新开启调用链.那么就相当于sorted给原有操作断路了一次,然后又重新接上,再次遍历.sorted操作如下
-img src="./Figures/Stream_pipeline_Sink_3.png"  width="700px" alt="Stream_pipeline_Sink_3"/>
+<img src="./Figures/Stream_pipeline_Sink_3.jpg"  width="700px" alt="Stream_pipeline_Sink_3"/>
 
 ### >> 叠加之后的操作如何执行
 
